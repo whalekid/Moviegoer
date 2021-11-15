@@ -9,13 +9,13 @@
 import UIKit
 
 protocol MoviesNetworkFetcherProtocol {
-    func fetchMovies(query: String, page:Int, response: @escaping (MoviesData?) -> Void)
+    func fetchNetworkMovies(query: String, page:Int, response: @escaping (MoviesData?) -> Void)
 }
 
 class MoviesNetworkFetcher: MoviesNetworkFetcherProtocol {
     private var networkService = NetworkService()
    
-    func fetchMovies(query: String, page:Int, response: @escaping (MoviesData?) -> Void) {
+    func fetchNetworkMovies(query: String, page:Int, response: @escaping (MoviesData?) -> Void) {
         guard let moviesURL = URLBuilder().build(query: query, page: page) else {return}
         networkService.fetchNetworkData(moviesURL: moviesURL) { (result) in
             switch result {

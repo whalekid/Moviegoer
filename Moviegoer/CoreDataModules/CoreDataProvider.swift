@@ -60,8 +60,15 @@ class CoreDataProvider{
             }
             else {
                 results.forEach { (result) in
-                    let movie = Movie(title: result.title, year: result.year, rating: result.rating, img: Constants.coreDataPosterURL, synopsis: result.overview)
-                    movies.append(movie)
+                    if result.poster != nil {
+                        let movie = Movie(title: result.title, year: result.year, rating: result.rating, img: Constants.coreDataPosterURL, synopsis: result.overview)
+                        movies.append(movie)
+                    }
+                    else {
+                        let movie = Movie(title: result.title, year: result.year, rating: result.rating, img: Constants.noImageURL, synopsis: result.overview)
+                        movies.append(movie)
+                    }
+                    
                 }
                 completion(.success(movies))
             }
@@ -91,30 +98,34 @@ class CoreDataProvider{
     }
     
     private func updateContext(movies: [Movie]) {
-        movies.forEach({ (movie) in
-            guard let posterString = movie.img else {return}
+        let semaphore = DispatchSemaphore(value: 1)
+        movies.forEach{ (movie) in
+            semaphore.wait()
+            let posterString = movie.img
             fetchImgData(posterString: posterString) {
                 (data) in
-                self.context.perform {
-                    let mov = MovieEntity(context: self.context)
-                    mov.title = movie.title
-                    mov.overview = movie.synopsis
-                    mov.year = movie.year
-                    mov.rating = movie.rating ?? 0.0
-                    mov.poster = data
-                    try! self.context.save()
-                }
+                let mov = MovieEntity(context: self.context)
+                mov.title = movie.title
+                mov.overview = movie.synopsis
+                mov.year = movie.year
+                mov.rating = movie.rating ?? 0.0
+                mov.poster = data
+                try! self.context.save()
+                semaphore.signal()
             }
-        })
+        }
     }
     
-    private func fetchImgData(posterString: String, completion: @escaping (Data?) -> ()) {
-        networkService.getImageDataFrom(posterString: posterString) { (data) in
-            if let fetchedData = data {
-                completion(fetchedData)
+    private func fetchImgData(posterString: String?, completion: @escaping (Data?) -> ()) {
+        if posterString != nil {
+            networkService.getImageDataFrom(posterString: posterString!) { (data) in
+                if let fetchedData = data {
+                    completion(fetchedData)
+                }
+                else { completion(nil) }
             }
-            else { completion(nil) }
         }
+        else {completion(nil)}
     }
     
 }

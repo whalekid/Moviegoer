@@ -9,5 +9,6 @@
 import Foundation
 struct Constants {
     static let coreDataPosterURL = "CD"
+    static let noImageURL = "NoImage"
 }
 

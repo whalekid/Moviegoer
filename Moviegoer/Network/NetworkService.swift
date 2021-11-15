@@ -39,12 +39,13 @@ class NetworkService {
     
     // MARK: - Get image data
      func getImageDataFrom(posterString: String, completion: @escaping (Data?) -> Void)  {
+        
         let urlString = URLBuilder().buildImgUrl(posterString: posterString)
         guard let url = URL(string: urlString) else {
             completion(nil)
             return
         }
-        URLSession.shared.dataTask(with: url) { (data, response, error) in
+        dataTask = URLSession.shared.dataTask(with: url) { (data, response, error) in
             
             if let error = error {
                 print("DataTask error: \(error.localizedDescription)")
@@ -56,7 +57,8 @@ class NetworkService {
                 return
             }
             completion(data)
-        }.resume()
+        }
+        dataTask?.resume()
     }
 }
 

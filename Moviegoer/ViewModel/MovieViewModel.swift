@@ -18,7 +18,7 @@ class MovieViewModel {
     private var movies = [Movie]()
     
     func fetchMoviesData(query: String, page:Int, completion: @escaping () -> ()) {
-        networkDataFetcher.fetchMovies(query: query, page: page) { [weak self] (result) in
+        networkDataFetcher.fetchNetworkMovies(query: query, page: page) { [weak self] (result) in
             
             if let result = result {
                 if page != 1 {
@@ -27,7 +27,10 @@ class MovieViewModel {
                 }
                 else {
                     self?.movies = result.movies
-                    self?.coreDataProvider.saveMovies(result.movies)
+                    let dispatchQueue = DispatchQueue.global(qos: .background)
+                    dispatchQueue.async {
+                        self?.coreDataProvider.saveMovies(result.movies)
+                    }
                     completion()
                 }
             }
@@ -47,21 +50,23 @@ class MovieViewModel {
     }
     
     func fetchPoster (movie: Movie, completion: @escaping (Data?) -> () ) {
-        guard let posterString = movie.img else {return}
-        if posterString != Constants.coreDataPosterURL {
-            fetchImgData(posterString: posterString) { (data) in
-                completion(data)
-            }
-        }
-        else {
+        let posterString = movie.img
+        switch posterString {
+            
+        case Constants.coreDataPosterURL:
             coreDataProvider.fetchCoreDataPoster(movie: movie) {(data) in
                 completion(data)
             }
+        case Constants.noImageURL, nil:
+            completion(nil)
+        default:
+            fetchImgData(posterString: posterString!) { (data) in
+                completion(data)
+            }
         }
-        
     }
     
-    func setCDMovies() {
+    func setCoreDataMovies() {
         coreDataProvider.setCoreDataMovies { (result) in
             switch result {
                 

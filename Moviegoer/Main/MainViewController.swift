@@ -23,10 +23,10 @@ class MainViewController: UIViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel.setCDMovies()
+        viewModel.setCoreDataMovies()
         mainView.table.dataSource = self
         mainView.table.reloadData()
-        setupSearch()
+        prepareSearch()
         mainView.table.delegate = self
         mainView.initialize()
     }
@@ -35,7 +35,7 @@ class MainViewController: UIViewController{
         view = mainView
     }
 
-    private func setupSearch() {
+    private func prepareSearch() {
         view.backgroundColor = UIColor.white
         navigationItem.title = "Moviegoer"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -44,7 +44,7 @@ class MainViewController: UIViewController{
         searchController.obscuresBackgroundDuringPresentation = false
     }
     
-    private func showMovies() {
+    private func fetchMovies() {
         timer?.invalidate()
         mainView.spinner.startAnimating()
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: {[unowned self] (_) in
@@ -75,9 +75,9 @@ extension MainViewController: UITableViewDelegate,UITableViewDataSource {
         if isPaginationStopped == true {
             return
         }
-        if (indexPath.row == viewModel.numberOfRowsInSection() - 1) {
+        if (indexPath.row == viewModel.numberOfRowsInSection() - 1 && searchPaginationText != "") {
             page += 1
-            showMovies()
+            fetchMovies()
         }
     }
     
@@ -107,7 +107,7 @@ extension MainViewController : UISearchBarDelegate {
             isPaginationStopped = false
             mainView.table.reloadData()
             searchPaginationText = searchText
-            showMovies()
+            fetchMovies()
             
         }
         else {mainView.table.reloadData()}
