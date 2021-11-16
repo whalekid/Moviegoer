@@ -19,7 +19,7 @@ class MainView: UIView {
     }()
     
     lazy var spinner : UIActivityIndicatorView = {
-        let activityView = UIActivityIndicatorView(style: .medium)
+        let activityView = UIActivityIndicatorView(style: .large)
         activityView.color = .black
         return activityView
     }()

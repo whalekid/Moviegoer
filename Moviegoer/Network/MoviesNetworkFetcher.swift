@@ -23,9 +23,12 @@ class MoviesNetworkFetcher: MoviesNetworkFetcherProtocol {
                 do {
                     let decoder = JSONDecoder()
                     let jsonData = try decoder.decode(MoviesData.self, from: data)
-                    
-                    DispatchQueue.main.async {
-                        response(jsonData)
+                    if jsonData.movies.isEmpty  {
+                        response(nil)}
+                    else {
+                        DispatchQueue.main.async {
+                            response(jsonData)
+                        }
                     }
                 } catch let JSONerror {
                     print ("error from JSONserialization: \(JSONerror.localizedDescription)")
@@ -35,7 +38,6 @@ class MoviesNetworkFetcher: MoviesNetworkFetcherProtocol {
                 print ("error from fetching: \(error.localizedDescription)")
                 response(nil)
             }
-            
         }
     }
 }

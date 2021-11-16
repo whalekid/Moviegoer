@@ -17,13 +17,13 @@ class MovieViewModel {
     private var coreDataProvider = CoreDataProvider()
     private var movies = [Movie]()
     
-    func fetchMoviesData(query: String, page:Int, completion: @escaping () -> ()) {
+    func fetchMoviesData(query: String, page:Int, completion: @escaping (Bool) -> ()) {
         networkDataFetcher.fetchNetworkMovies(query: query, page: page) { [weak self] (result) in
             
             if let result = result {
                 if page != 1 {
                     self?.movies += result.movies
-                    completion()
+                    completion(true)
                 }
                 else {
                     self?.movies = result.movies
@@ -31,12 +31,12 @@ class MovieViewModel {
                     dispatchQueue.async {
                         self?.coreDataProvider.saveMovies(result.movies)
                     }
-                    completion()
+                    completion(true)
                 }
             }
             else {
                 print("Error processing json data")
-                completion()
+                completion(false)
             }
         }
     }

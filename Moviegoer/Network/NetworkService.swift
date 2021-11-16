@@ -54,6 +54,7 @@ class NetworkService {
             
             guard let data = data else {
                 print("Empty Data")
+                completion(nil)
                 return
             }
             completion(data)
