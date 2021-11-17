@@ -60,6 +60,7 @@ class MainViewController: UIViewController{
                         return
                     }
                     if self.page == 1 {
+                        self.mainView.table.reloadData()
                         let indexPath = IndexPath(row: 0, section: 0)
                         self.mainView.table.scrollToRow(at: indexPath, at: .top, animated: false)
                         self.mainView.table.reloadSections(NSIndexSet(index: 0) as IndexSet, with: .fade)
